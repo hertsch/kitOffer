@@ -1,0 +1,57 @@
+{*
+ * kitOffer
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de
+ * @copyright 2012
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @version $Id$
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="kit_about">
+  <div class="about_logo">
+    <img src="{$img_url}kit_cronjob_logo_450x300.jpg" width="450" height="300" alt="kitCronjob" />
+  </div>
+  <div class="about_text">
+    <div class="about_block">
+      <h2>kitCronjob</h2>
+      <div class="about_release"<b>Release {$version}</b></div>
+      <div class="about_address"><b>phpManufaktur</b><br />Ralf Hertsch<br />Stockholmer Str. 31<br />13359 Berlin</div>
+      <div class="about_contact">
+        <a href="http://phpmanufaktur.de" target="_blank">http://phpManufaktur.de</a><br />
+        <a href="mailto:ralf.hertsch@phpmanufaktur.de">ralf.hertsch@phpManufaktur.de</a><br />
+        {I18n('phone')} +49 (0)30 68813647
+      </div>
+    </div>
+    <div class="about_manufaktur_logo">
+      <div>
+      <a href="http://phpmanufaktur.de" target="_blank" title="phpManufaktur: Homepage">
+        <img src="{$img_url}/logos/phpmanufaktur-logo-150x110.png" width="150" height="110" alt="phpManufaktur" />
+      </a>
+      </div>
+      <div style="margin:15px 0 0 0;">
+      <a href="http://lepton-cms.org" target="_blank" title="LEPTON CMS" >
+        <img src="{$img_url}/logos/lepton-logo-150x36.png" width="150" height="36" alt="LEPTON CMS" />
+      </a>
+      </div>
+    </div>
+    <div class="about_icons">
+      <div id="about_link"><a href="http://facebook.com/manufaktur.berlin" target="_blank" title="phpManufaktur: Facebook"><img src="{$img_url}/logos/facebook-35x35.png" height="35" /></a></div>
+      <div id="about_link"><a href="https://plus.google.com/108317166904922728386" target="_blank" title="phpManufaktur: Google+"><img src="{$img_url}/logos/google-35x35.png" height="35" /></a></div>    
+      <div id="about_link"><a href="http://twitter.com/wb_tipp" target="_blank" title="phpManufaktur: Twitter"><img src="{$img_url}/logos/twitter-52x36.png" height="36" /></a></div>
+      <div id="about_link"><a href="https://www.xing.com/profile/Ralf_Hertsch" target="_blank" title="phpManufaktur: XING"><img src="{$img_url}/logos/xing-logo-89x35.png" height="35" /></a></div>    
+      <div id="about_link"><a href="http://www.youtube.com/phpmanufaktur" target="_blank" title="phpManufaktur: YOU TUBE Channel"><img src="{$img_url}/logos/youtube-84x35.png" height="35" /></a></div>    
+    </div>  
+  </div>
+  <div class="kit_clear"></div>
+  <div class="about_history">
+    <h2>{I18n('History')}:</h2>
+    <pre>{$release_notes}</pre>
+  </div>  
+</div>
