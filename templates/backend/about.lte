@@ -16,12 +16,12 @@
  *}
 <div id="kit_about">
   <div class="about_logo">
-    <img src="{$img_url}kit_cronjob_logo_450x300.jpg" width="450" height="300" alt="kitCronjob" />
+    <img src="{$img_url}/logos/kitoffer-logo-450x345.jpg" width="450" height="345" alt="kitOffer" />
   </div>
   <div class="about_text">
     <div class="about_block">
-      <h2>kitCronjob</h2>
-      <div class="about_release"<b>Release {$version}</b></div>
+      <h2>kitOffer</h2>
+      <div class="about_release"><b>Release {$version}</b></div>
       <div class="about_address"><b>phpManufaktur</b><br />Ralf Hertsch<br />Stockholmer Str. 31<br />13359 Berlin</div>
       <div class="about_contact">
         <a href="http://phpmanufaktur.de" target="_blank">http://phpManufaktur.de</a><br />

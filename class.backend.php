@@ -36,15 +36,26 @@ if (defined('WB_PATH')) {
 if (!defined('LEPTON_PATH'))
   require_once WB_PATH . '/modules/' . basename(dirname(__FILE__)) . '/wb2lepton.php';
 
+require_once LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php';
+require_once LEPTON_PATH . '/modules/manufaktur_i18n/class.dialog.php';
+
 class offerBackend {
 
   const REQUEST_ACTION = 'act';
+  const REQUEST_SUB_ACTION = 'sub';
   const REQUEST_ITEMS = 'its';
 
   const ACTION_ABOUT = 'abt';
+  const ACTION_ARTICLES = 'art';
   const ACTION_CONFIG = 'cfg';
   const ACTION_CONFIG_CHECK = 'cfgc';
   const ACTION_DEFAULT = 'def';
+  const ACTION_LANGUAGE = 'lng';
+  const ACTION_SUB_ARTICLES = 'sar';
+  const ACTION_SUB_ARTICLE_EDIT = 'sae';
+  const ACTION_SUB_ARTICLE_CHECK = 'sac';
+  const ACTION_SUB_GROUPS = 'sge';
+  const ACTION_SUB_GROUPS_CHECK = 'sgc';
 
   private $page_link = '';
   private $img_url = '';
@@ -53,7 +64,19 @@ class offerBackend {
   private $message = '';
 
   protected $lang = NULL;
-  protected $tab_navigation_array = null;
+
+  // don't translate the Tab Strings here - this will be done in the template!
+  private $tab_navigation_array = array(
+      self::ACTION_ARTICLES => 'Articles',
+      self::ACTION_CONFIG => 'Settings',
+      self::ACTION_LANGUAGE => 'Languages',
+      self::ACTION_ABOUT => 'About'
+      );
+  private $tab_articles_array = array(
+      self::ACTION_SUB_ARTICLES => 'List',
+      self::ACTION_SUB_ARTICLE_EDIT => 'Edit',
+      //self::ACTION_SUB_GROUPS => 'Groups'
+      );
 
   public function __construct() {
     global $lang;
@@ -61,11 +84,6 @@ class offerBackend {
     $this->img_url = LEPTON_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
     date_default_timezone_set(CFG_TIME_ZONE);
     $this->lang = $lang;
-    // don't translate the Tab Strings here - this will be done in the template!
-    $this->tab_navigation_array = array(
-        self::ACTION_CONFIG => 'Settings',
-        self::ACTION_LANGUAGE => 'Languages',
-        self::ACTION_ABOUT => 'About');
   } // __construct()
 
   /**
@@ -200,7 +218,7 @@ class offerBackend {
    * @return STR result dialog or message
    */
   public function action() {
-    $html_allowed = array();
+    $html_allowed = array(dbOfferArticles::FIELD_LONG_DESCRIPTION, dbOfferArticles::FIELD_SHORT_DESCRIPTION);
     foreach ($_REQUEST as $key => $value) {
       if (strpos($key, 'cfg_') == 0)
         continue;
@@ -215,9 +233,12 @@ class offerBackend {
       $action = self::ACTION_LANGUAGE;
 
     switch ($action) :
+    case self::ACTION_ARTICLES:
+      $this->show(self::ACTION_ARTICLES, $this->actionArticles());
+      break;
     case self::ACTION_CONFIG:
       $this->show(self::ACTION_CONFIG, $this->dlgConfig());
-    break;
+      break;
     case self::ACTION_CONFIG_CHECK:
       $this->show(self::ACTION_CONFIG, $this->checkConfig());
       break;
@@ -256,10 +277,32 @@ class offerBackend {
     echo $this->getTemplate('body.lte', $data);
   } // show()
 
+  protected function showSubPage($action, $subaction, $content) {
+    $navigation = array();
+    foreach ($this->tab_articles_array as $key => $value) {
+      $navigation[] = array(
+          'active' => ($key == $subaction) ? 1 : 0,
+          'url' => sprintf('%s&%s', $this->page_link, http_build_query(array(
+              self::REQUEST_ACTION => $action,
+              self::REQUEST_SUB_ACTION => $key))),
+          'text' => $value
+          );
+    }
+    $data = array(
+        'navigation' => $navigation,
+        'content' => $content,
+        'IMG_URL' => $this->img_url
+        );
+    return $this->getTemplate('subpage.lte', $data);
+  } // showSubPage()
 
   protected function dlgConfig() {
     return __METHOD__;
   } // dlgConfig()
+
+  protected function checkConfig() {
+    return __METHOD__;
+  } // checkConfig()
 
   /**
    * Information about kitIdea
@@ -274,5 +317,330 @@ class offerBackend {
     return $this->getTemplate('about.lte', $data);
   } // dlgAbout()
 
+  protected function actionArticles() {
+
+    $action = (isset($_REQUEST[self::REQUEST_SUB_ACTION])) ? $_REQUEST[self::REQUEST_SUB_ACTION] : self::ACTION_SUB_ARTICLES;
+
+    switch ($action) {
+      case self::ACTION_SUB_ARTICLES:
+        $result = $this->showSubPage(self::ACTION_ARTICLES, self::ACTION_SUB_ARTICLES, $this->dlgArticlesList());
+        break;
+      case self::ACTION_SUB_ARTICLE_EDIT:
+        $result = $this->showSubPage(self::ACTION_ARTICLES, self::ACTION_SUB_ARTICLE_EDIT, $this->dlgArticleEdit());
+        break;
+      case self::ACTION_SUB_ARTICLE_CHECK:
+        $result = $this->showSubPage(self::ACTION_ARTICLES, self::ACTION_SUB_ARTICLE_EDIT, $this->checkArticleEdit());
+        break;
+      default:
+        $result = $this->showSubPage(self::ACTION_ARTICLES, self::ACTION_SUB_ARTICLES, $this->dlgArticlesList());
+        break;
+    }
+    return $result;
+  } // actionArticles()
+
+  protected function dlgArticlesList() {
+    global $dbOfferArticles;
+
+    $SQL = sprintf("SELECT * FROM %s WHERE `%s`!='%s' ORDER BY `%s` DESC",
+        $dbOfferArticles->getTableName(),
+        dbOfferArticles::FIELD_STATUS,
+        dbOfferArticles::STATUS_DELETED,
+        dbOfferArticles::FIELD_TIMESTAMP);
+    $articles = array();
+    if (!$dbOfferArticles->sqlExec($SQL, $articles)) {
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbOfferArticles->getError()));
+      return false;
+    }
+    $article_array = array();
+    foreach ($articles as $article) {
+      foreach ($article as $key => $value) {
+        switch ($key):
+        case dbOfferArticles::FIELD_TIMESTAMP:
+          $article_array[$article[dbOfferArticles::FIELD_ID]][$key] = array(
+              'name' => $key,
+              'value' => $value,
+              'formatted' => date(CFG_DATETIME_STR, strtotime($value))
+          );
+          break;
+        case dbOfferArticles::FIELD_PRICE:
+          $article_array[$article[dbOfferArticles::FIELD_ID]][$key] = array(
+              'name' => $key,
+              'value' => $value,
+              'formatted' => number_format($value, 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)
+          );
+          break;
+        case dbOfferArticles::FIELD_IN_STOCK:
+          $article_array[$article[dbOfferArticles::FIELD_ID]][$key] = array(
+              'name' => $key,
+              'value' => $value,
+              'formatted' => number_format($value, 0, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)
+          );
+          break;
+        default:
+          $article_array[$article[dbOfferArticles::FIELD_ID]][$key] = array(
+              'name' => $key,
+              'value' => $value
+              );
+        endswitch;
+      }
+      // add the link for editing the article
+      $article_array[$article[dbOfferArticles::FIELD_ID]]['edit'] = array(
+          'url' => sprintf('%s&%s', $this->page_link, http_build_query(array(
+              self::REQUEST_ACTION => self::ACTION_ARTICLES,
+              self::REQUEST_SUB_ACTION => self::ACTION_SUB_ARTICLE_EDIT,
+              dbOfferArticles::FIELD_ID => $article[dbOfferArticles::FIELD_ID]
+              )))
+          );
+    }
+    $data = array(
+        'articles' => $article_array,
+        );
+    return $this->getTemplate('article.list.lte', $data);
+  } // dlgArticlesList()
+
+  /**
+   * Dialog for creating and editing articles
+   *
+   * @return string dialog
+   */
+  protected function dlgArticleEdit() {
+    global $dbOfferArticles;
+    global $kitTools;
+
+    $id = (isset($_REQUEST[dbOfferArticles::FIELD_ID])) ? $_REQUEST[dbOfferArticles::FIELD_ID] : -1;
+
+    if ($id > 0) {
+      $article = array();
+      $SQL = sprintf("SELECT * FROM %s WHERE `%s`='%d'",
+          $dbOfferArticles->getTableName(),
+          dbOfferArticles::FIELD_ID,
+          $id);
+      if (!$dbOfferArticles->sqlExec($SQL, $article)) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbOfferArticles->getError()));
+        return false;
+      }
+      if (count($article) < 1) {
+        $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__,
+            $this->lang->I18n('The article with the <b>ID {{ id }}</b> does not exists!', array('id' => $id))));
+        return false;
+      }
+      $article = $article[0];
+    }
+    else {
+      $article = $dbOfferArticles->getFields();
+      $article[dbOfferArticles::FIELD_PRICE] = number_format(0, 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR);
+      $article[dbOfferArticles::FIELD_IN_STOCK] = -1;
+      $article[dbOfferArticles::FIELD_ID] = $id;
+    }
+
+    foreach ($dbOfferArticles->getFields() as $key => $value) {
+      if (isset($_REQUEST[$key])) {
+        switch ($key) {
+          case dbOfferArticles::FIELD_PRICE:
+            $article[$key] = $kitTools->str2float($_REQUEST[$key], CFG_THOUSAND_SEPARATOR, CFG_DECIMAL_SEPARATOR);
+            break;
+          default:
+            $article[$key] = $_REQUEST[$key];
+            break;
+        }
+      }
+    }
+
+    $article_array = array();
+    foreach ($article as $key => $value) {
+      switch ($key) {
+        case dbOfferArticles::FIELD_LONG_DESCRIPTION:
+        case dbOfferArticles::FIELD_SHORT_DESCRIPTION:
+          $article_array[$key] = array(
+              'name' => $key,
+              'value' => $this->unsanitizeText($value)
+          );
+          break;
+        case dbOfferArticles::FIELD_PRICE:
+          $article_array[$key] = array(
+            'name' => $key,
+            'value' => $value,
+            'formatted' => number_format($value, 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)
+          );
+          break;
+        default:
+          $article_array[$key] = array(
+            'name' => $key,
+            'value' => $value
+          );
+          break;
+      }
+    }
+
+    $data = array(
+        'form' => array(
+            'name' => 'article_edit',
+            'action' => $this->page_link
+            ),
+        'action' => array(
+            'name' => self::REQUEST_ACTION,
+            'value' => self::ACTION_ARTICLES
+            ),
+        'sub_action' => array(
+            'name' => self::REQUEST_SUB_ACTION,
+            'value' => self::ACTION_SUB_ARTICLE_CHECK,
+            ),
+        'message' => array(
+            'active' => (int) $this->isMessage(),
+            'text' => $this->isMessage() ? $this->getMessage() : ''
+            ),
+        'fields' => $article_array,
+        'IMG_URL' => $this->img_url
+        );
+    return $this->getTemplate('article.edit.lte', $data);
+  } // dlgArticleEdit()
+
+  protected function sanitizeVariable($item) {
+    if (!is_array($item)) {
+      // undoing 'magic_quotes_gpc = On' directive
+      if (get_magic_quotes_gpc())
+        $item = stripcslashes($item);
+      $item = $this->sanitizeText($item);
+    }
+    return $item;
+  }
+
+  // does the actual 'html' and 'sql' sanitization. customize if you want.
+  protected function sanitizeText($text) {
+    $text = str_replace("<", "&lt;", $text);
+    $text = str_replace(">", "&gt;", $text);
+    $text = str_replace("\"", "&quot;", $text);
+    $text = str_replace("'", "&#039;", $text);
+    // it is recommended to replace 'addslashes' with 'mysql_real_escape_string' or whatever db specific fucntion used for escaping. However 'mysql_real_escape_string' is slower because it has to connect to mysql.
+    $text = mysql_real_escape_string($text);
+    return $text;
+  }
+
+  protected function unsanitizeText($text) {
+    $text =  stripcslashes($text);
+    $text = str_replace("&#039;", "'", $text);
+    $text = str_replace("&gt;", ">", $text);
+    $text = str_replace("&quot;", "\"", $text);
+    $text = str_replace("&lt;", "<", $text);
+    return $text;
+  }
+
+  /**
+   * Check a new or changed article and save it
+   *
+   * @return string dlgArticleEdit()
+   */
+  protected function checkArticleEdit() {
+    global $dbOfferArticles;
+    global $kitTools;
+
+    $id = isset($_REQUEST[dbOfferArticles::FIELD_ID]) ? $_REQUEST[dbOfferArticles::FIELD_ID] : -1;
+    $checked = true;
+    $article = array();
+    $message = '';
+    foreach ($dbOfferArticles->getFields() as $key => $value) {
+      switch ($key):
+      case dbOfferArticles::FIELD_NUMBER:
+        // if no article number is set, use the ID
+        $article[$key] = (isset($_REQUEST[$key]) && !empty($_REQUEST[$key])) ? $_REQUEST[$key] : $id;
+        break;
+      case dbOfferArticles::FIELD_LONG_DESCRIPTION:
+      case dbOfferArticles::FIELD_SHORT_DESCRIPTION:
+        if (!isset($_REQUEST[$key]) || empty($_REQUEST[$key])) {
+          $checked = false;
+          $field = $this->lang->I18n($key);
+          $message .= $this->lang->I18n('<p>The field <b>{{ field }}</b> must contain a value!</p>', array('field' => $field));
+        }
+        else {
+          $article[$key] = $this->sanitizeVariable($_REQUEST[$key]);
+        }
+        break;
+      case dbOfferArticles::FIELD_NAME:
+        if (!isset($_REQUEST[$key]) || empty($_REQUEST[$key])) {
+          $checked = false;
+          $field = $this->lang->I18n($key);
+          $message .= $this->lang->I18n('<p>The field <b>{{ field }}</b> must contain a value!</p>', array('field' => $field));
+        }
+        else {
+          $article[$key] = trim($_REQUEST[$key]);
+        }
+        break;
+      case dbOfferArticles::FIELD_PRICE:
+        if (!isset($_REQUEST[$key])) {
+          $checked = false;
+          $field = $this->lang->I18n($key);
+          $message .= $this->lang->I18n('<p>The field <b>{{ field }}</b> must contain a value!</p>', array('field' => $field));
+        }
+        else {
+          // convert to float
+          $article[$key] = $kitTools->str2float($_REQUEST[$key], CFG_THOUSAND_SEPARATOR, CFG_DECIMAL_SEPARATOR);
+        }
+        break;
+      case dbOfferArticles::FIELD_IN_STOCK:
+        if (!isset($_REQUEST[$key])) {
+          $checked = false;
+          $field = $this->lang->I18n($key);
+          $message .= $this->lang->I18n('<p>The field <b>{{ field }}</b> must contain a value!</p>', array('field' => $field));
+        }
+        else {
+          // convert to integer
+          $article[$key] = $kitTools->str2int($_REQUEST[$key], CFG_THOUSAND_SEPARATOR, CFG_DECIMAL_SEPARATOR);
+        }
+        break;
+      case dbOfferArticles::FIELD_STATUS:
+      case dbOfferArticles::FIELD_ID:
+      case dbOfferArticles::FIELD_IMAGES:
+      case dbOfferArticles::FIELD_GROUP:
+      default:
+        // nothing to do...
+        break;
+      endswitch;
+    }
+
+    if ($checked) {
+      if ($id > 0) {
+        // update existing article
+        $where = array(
+            dbOfferArticles::FIELD_ID => $id
+            );
+        if (!$dbOfferArticles->sqlUpdateRecord($article, $where)) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbOfferArticles->getError()));
+          return false;
+        }
+        $message .= $this->lang->I18n('<p>The article with the ID {{ id }} was successfull updated.</p>', array('id' => $id));
+      }
+      else {
+        // ad a new article
+        if (!$dbOfferArticles->sqlInsertRecord($article, $id)) {
+          $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbOfferArticles->getError()));
+          return false;
+        }
+        if (($article[dbOfferArticles::FIELD_NUMBER] == -1) || empty($article[dbOfferArticles::FIELD_NUMBER])) {
+          // set article number to article ID
+          $article_number = sprintf('%05d', $id);
+          $where = array(
+              dbOfferArticles::FIELD_ID => $id
+              );
+          $data = array(
+              dbOfferArticles::FIELD_NUMBER => $article_number
+              );
+          if (!$dbOfferArticles->sqlUpdateRecord($data, $where)) {
+            $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $dbOfferArticles->getError()));
+            return false;
+          }
+          $message .= $this->lang->I18n('<p>kitOffer has changed the article number to {{ number }}.</p>', array('number' => $article_number));
+        }
+        $message .= $this->lang->I18n('<p>The article with the ID {{ id }} was successfull added.</p>', array('id' => $id));
+      }
+      // unset $_REQUEST's
+      foreach ($dbOfferArticles->getFields() as $key => $value) {
+        unset($_REQUEST[$key]);
+      }
+      // set ID
+      $_REQUEST[dbOfferArticles::FIELD_ID] = $id;
+    }
+    $this->setMessage($message);
+    return $this->dlgArticleEdit();
+  } // checkArticleEdit()
 
 } // class offerBackend

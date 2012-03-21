@@ -43,8 +43,12 @@ if (!is_object($lang)) $lang = new manufaktur_I18n('kit_cronjob', LANGUAGE);
 // load language depending onfiguration
 if (!file_exists(LEPTON_PATH.'/modules/' . basename(dirname(__FILE__)) . '/languages/' . LANGUAGE . '.cfg.php')) {
   require_once(LEPTON_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.cfg.php');
-} else {
+  // important: language flag is used by template selection
+  if (!defined('KIT_OFFER_LANGUAGE')) define('KIT_OFFER_LANGUAGE', 'DE');
+}
+else {
   require_once(LEPTON_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.cfg.php');
+  if (!defined('KIT_OFFER_LANGUAGE')) define('KIT_OFFER_LANGUAGE', LANGUAGE);
 }
 
 if (!class_exists('Dwoo')) {
@@ -67,3 +71,14 @@ $loader->addDirectory(LEPTON_PATH.'/modules/kit_offer/templates/plugins/');
 if (!class_exists('dbconnectle')) {
   require_once LEPTON_PATH.'/modules/dbconnect_le/include.php';
 }
+
+if (!class_exists('kitToolsLibrary')) {
+	require_once WB_PATH.'/modules/kit_tools/class.tools.php';
+}
+global $kitTools;
+if (!is_object($kitTools)) $kitTools = new kitToolsLibrary();
+
+require_once LEPTON_PATH.'/modules/kit_offer/class.offer.php';
+
+global $dbOfferArticles;
+if (!is_object($dbOfferArticles)) $dbOfferArticles = new dbOfferArticles(true);

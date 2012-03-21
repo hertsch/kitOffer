@@ -1,0 +1,75 @@
+{*
+ * kitOffer
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de/kit_cronjob
+ * @copyright 2012
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @version $Id$
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="article_edit">
+  <form name="{$form.name}" action="{$form.action}" method="post">
+    <input type="hidden" name="{$action.name}" value="{$action.value}" />
+    <input type="hidden" name="{$sub_action.name}" value="{$sub_action.value}" />
+    <input type="hidden" name="{$fields.article_id.name}" value="{$fields.article_id.value}" />
+    <h2>{I18n('Article edit')}</h2>
+    <div class="{if $message.active == 1}message{else}intro{/if}">
+      {if $message.active == 1}
+        {$message.text}
+      {elseif $fields.article_id.value > 0}
+        {I18n('Please edit the article with the <strong>ID {{ id }}</strong> like you need it.', array(id=$fields.article_id.value))}
+      {else}
+        {I18n("Please create a new article like you need it.")}
+      {/if}
+    </div>
+    <div class="art_label">{I18n('Article number')}</div>
+    <div class="art_value {$fields.article_number.name}"><input type="text" name="{$fields.article_number.name}" value="{$fields.article_number.value}" /></div>
+    <div class="art_id">{I18n('ID')} {if $fields.article_id.value > 0}{number_format($fields.article_id.value, '%03d')}{else}{I18n('- new -')}{/if}</div>
+    <div class="art_hint"></div>
+    <div class="art_clear"></div>
+    <div class="art_label">{I18n('Article status')}</div>
+    <div class="art_value">
+      <select name="{$fields.article_status.name}"{if $fields.article_id.value < 1} disabled="disabled"{/if}>
+        <option value="ACTIVE"{if $fields.article_status.value == 'ACTIVE'} selected="selected"{/if}>{I18n('ACTIVE')}</option>
+        <option value="LOCKED"{if $fields.article_status.value == 'LOCKED'} selected="selected"{/if}>{I18n('LOCKED')}</option>
+        <option value="DELETED"{if $fields.article_status.value == 'DELETED'} selected="selected"{/if}>{I18n('DELETED')}</option>
+      </select>
+    </div>
+    <div class="art_hint"></div>
+    <div class="art_clear"></div>
+    <div class="art_label">{I18n('Name')}</div>
+    <div class="art_value"><input type="text" name="{$fields.article_name.name}" value="{$fields.article_name.value}" /></div>
+    <div class="art_hint"></div>
+    <div class="art_clear"></div>
+    <div class="art_label">{I18n('Short description')}</div>
+    <div class="art_value">{wysiwyg_editor($fields.article_short_description.name, $fields.article_short_description.name, $fields.article_short_description.value, '100%', '100px', 'Smart', 'default')}</div>
+    <div class="art_hint"></div>
+    <div class="art_clear"></div>
+    <div class="art_label">{I18n('Long description')}</div>
+    <div class="art_value">{wysiwyg_editor($fields.article_long_description.name, $fields.article_long_description.name, $fields.article_long_description.value, '100%', '200px', 'Simple', 'default')}</div>
+    <div class="art_hint"></div>
+    <div class="art_clear"></div>
+    <div class="art_label">{I18n('Price')}</div>
+    <div class="art_value"><input type="text" name="{$fields.article_price.name}" value="{$fields.article_price.formatted}" /></div>
+    <div class="art_hint">{I18n('The price of the article including VAT')}</div>
+    <div class="art_clear"></div>
+    <div class="art_label">{I18n('In stock')}</div>
+    <div class="art_value"><input type="text" name="{$fields.article_in_stock.name}" value="{$fields.article_in_stock.value}" /></div>
+    <div class="art_hint">{I18n("Number of articles in the stock. If you don't want to use the stock set the value to -1.")}</div>
+    <div class="art_clear"></div>
+    <div class="art_label">&nbsp;</div>
+    <div class="art_value">
+      <input type="submit" value="{I18n('OK')}" />&nbsp;
+      <input type="button" value="{I18n('Abort')}" onclick="javascript: window.location = '{$form.action}'; return false;" />
+    </div>
+    <div class="art_hint"></div>
+    <div class="art_clear"></div>
+  </form>
+</div>

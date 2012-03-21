@@ -1,0 +1,36 @@
+{*
+ * kitOffer
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de/kit_cronjob
+ * @copyright 2012
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @version $Id$
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="sub_page">
+  <ul class="navigation">
+  {foreach $navigation nav}
+    <li{if $nav.active == 1} class="selected"{/if} title="{I18n($nav.text)}">
+      <a href="{$nav.url}">
+        {if $nav.text == 'List'}
+          <img src="{$IMG_URL}/{if $nav.active == 1}active{else}inactive{/if}/10/article.png" width="10" height="10" alt="{I18n($nav.text)}" />&nbsp;{I18n($nav.text)}
+        {elseif $nav.text == 'Edit'}
+          <img src="{$IMG_URL}/{if $nav.active == 1}active{else}inactive{/if}/10/article-edit.png" width="10" height="10" alt="{I18n($nav.text)}" />&nbsp;{I18n($nav.text)}
+        {else}
+          {I18n($nav.text)}
+        {/if}
+      </a>
+    </li>
+  {/foreach}
+  </ul>
+  <div id="sub_content">
+    {$content}
+  </div>
+</div>

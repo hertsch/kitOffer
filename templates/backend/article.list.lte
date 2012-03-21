@@ -1,0 +1,49 @@
+{*
+ * kitOffer
+ *
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de/kit_cronjob
+ * @copyright 2012
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License (GPL)
+ * @version $Id$
+ *
+ * Please consult the Dwoo Documentation & WIKI to get further informations 
+ * and hints for the usage of the Dwoo template engine.
+ *
+ * @link http://wiki.dwoo.org/
+ *
+ * Use {dump()} to get a list of all in this template available variables!
+ *}
+<div id="article_list">
+  <h2>{I18n('Article list')}</h2>
+  <div class="{if $message.active == 1}message{else}intro{/if}">
+    {if $message.active == 1}
+      {$message.text}
+    {else}
+      {I18n("<p>Please click at the article you wish to edit.</p><p>To create a new article please click at the tab <b>Edit</b>.</p>")}
+    {/if}
+  </div>
+  {cycle values=array('flip','flop') print=false}
+  {foreach $articles article}
+  <a href="{$article.edit.url}" title="{I18n('Please click to edit this article')}">
+    <fieldset class="al_fieldset {cycle}">
+      <div class="al_label">{I18n('Article number')}</div>
+      <div class="al_value {$article.article_number.name}">{$article.article_number.value}&nbsp;</div>
+      <div class="al_label">{I18n('ID')}</div>
+      <div class="al_value {$article.article_id.name}">{string_format($article.article_id.value, '%05d')}</div>
+      <div class="al_label">{I18n('Timestamp')}</div>
+      <div class="al_value {$article.article_timestamp.name}">{$article.article_timestamp.formatted}</div>
+      <div class="al_clear"></div>
+      <div class="al_label">{I18n('Article name')}</div>
+      <div class="al_value">{$article.article_name.value}&nbsp;</div>
+      <div class="al_clear"></div>
+      <div class="al_label">{I18n('Article price')}</div>
+      <div class="al_value {$article.article_price.name}">{$article.article_price.formatted}&nbsp;</div>
+      <div class="al_label">{I18n('Article in stock')}</div>
+      <div class="al_value {$article.article_in_stock.name}">{$article.article_in_stock.formatted}&nbsp;</div>
+      <div class="al_label">{I18n('Status')}</div>
+      <div class="al_value {$article.article_status.name}">{I18n($article.article_status.value)}</div>      
+    </fieldset>
+  </a>
+  {/foreach}
+</div>

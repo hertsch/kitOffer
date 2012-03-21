@@ -31,10 +31,8 @@
           <img src="{$IMG_URL}/{if $nav.active == 1}active{else}inactive{/if}/10/settings.png" width="10" height="10" alt="{I18n($nav.text)}" />
         {elseif $nav.text == 'Protocol'}
           <img src="{$IMG_URL}/{if $nav.active == 1}active{else}inactive{/if}/10/protocol.png" width="10" height="10" alt="{I18n($nav.text)}" /> {I18n($nav.text)}
-        {elseif $nav.text == 'Cronjob edit'}
-          <img src="{$IMG_URL}/{if $nav.active == 1}active{else}inactive{/if}/10/cronjob-edit.png" width="10" height="10" alt="{I18n($nav.text)}" /> {I18n($nav.text)}
-        {elseif $nav.text == 'Cronjob list'}
-          <img src="{$IMG_URL}/{if $nav.active == 1}active{else}inactive{/if}/10/cronjob-list.png" width="10" height="10" alt="{I18n($nav.text)}" /> {I18n($nav.text)}
+        {elseif $nav.text == 'Articles'}
+          <img src="{$IMG_URL}/{if $nav.active == 1}active{else}inactive{/if}/10/article.png" width="10" height="10" alt="{I18n($nav.text)}" /> {I18n($nav.text)}
         {else}
           {I18n($nav.text)}
         {/if}
