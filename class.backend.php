@@ -38,6 +38,7 @@ if (!defined('LEPTON_PATH'))
 
 require_once LEPTON_PATH.'/modules/'.basename(dirname(__FILE__)).'/initialize.php';
 require_once LEPTON_PATH . '/modules/manufaktur_i18n/class.dialog.php';
+require_once LEPTON_PATH.'/modules/manufaktur_config/class.dialog.php';
 
 class offerBackend {
 
@@ -48,7 +49,6 @@ class offerBackend {
   const ACTION_ABOUT = 'abt';
   const ACTION_ARTICLES = 'art';
   const ACTION_CONFIG = 'cfg';
-  const ACTION_CONFIG_CHECK = 'cfgc';
   const ACTION_DEFAULT = 'def';
   const ACTION_LANGUAGE = 'lng';
   const ACTION_SUB_ARTICLES = 'sar';
@@ -65,18 +65,8 @@ class offerBackend {
 
   protected $lang = NULL;
 
-  // don't translate the Tab Strings here - this will be done in the template!
-  private $tab_navigation_array = array(
-      self::ACTION_ARTICLES => 'Articles',
-      self::ACTION_CONFIG => 'Settings',
-      self::ACTION_LANGUAGE => 'Languages',
-      self::ACTION_ABOUT => 'About'
-      );
-  private $tab_articles_array = array(
-      self::ACTION_SUB_ARTICLES => 'List',
-      self::ACTION_SUB_ARTICLE_EDIT => 'Edit',
-      //self::ACTION_SUB_GROUPS => 'Groups'
-      );
+  private $tab_navigation_array = array();
+  private $tab_articles_array = array();
 
   public function __construct() {
     global $lang;
@@ -84,6 +74,18 @@ class offerBackend {
     $this->img_url = LEPTON_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
     date_default_timezone_set(CFG_TIME_ZONE);
     $this->lang = $lang;
+    // don't translate the Tab Strings here - this will be done in the template!
+    $this->tab_navigation_array = array(
+      self::ACTION_ARTICLES => $this->lang->I18n_Register('Articles'),
+      self::ACTION_CONFIG => $this->lang->I18n_Register('Settings'),
+      self::ACTION_LANGUAGE => $this->lang->I18n_Register('Languages'),
+      self::ACTION_ABOUT => $this->lang->I18n_Register('About')
+      );
+    $this->tab_articles_array = array(
+      self::ACTION_SUB_ARTICLES => $this->lang->I18n_Register('List'),
+      self::ACTION_SUB_ARTICLE_EDIT => $this->lang->I18n_Register('Edit'),
+      //self::ACTION_SUB_GROUPS => $this->lang->I18n_Register('Groups')
+      );
   } // __construct()
 
   /**
@@ -187,9 +189,10 @@ class offerBackend {
     try {
       $result = $parser->get($load_template, $template_data);
     } catch (Exception $e) {
-      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->I18n('Error executing the template ' . '<b>{{ template }}</b>: {{ error }}', array(
-          'template' => basename($load_template),
-          'error' => $e->getMessage()))));
+      $this->setError(sprintf('[%s - %s] %s', __METHOD__, __LINE__, $this->lang->I18n(
+          'Error executing the template ' . '<b>{{ template }}</b>: {{ error }}', array(
+            'template' => basename($load_template),
+            'error' => $e->getMessage()))));
       return false;
     }
     return $result;
@@ -198,8 +201,7 @@ class offerBackend {
   /**
    * Verhindert XSS Cross Site Scripting
    *
-   * @param $_REQUEST REFERENCE
-   *          Array
+   * @param refrence array $request
    * @return $request
    */
   protected function xssPrevent(&$request) {
@@ -215,7 +217,7 @@ class offerBackend {
   /**
    * Action handler of the class
    *
-   * @return STR result dialog or message
+   * @return string result dialog or message
    */
   public function action() {
     $html_allowed = array(dbOfferArticles::FIELD_LONG_DESCRIPTION, dbOfferArticles::FIELD_SHORT_DESCRIPTION);
@@ -238,9 +240,6 @@ class offerBackend {
       break;
     case self::ACTION_CONFIG:
       $this->show(self::ACTION_CONFIG, $this->dlgConfig());
-      break;
-    case self::ACTION_CONFIG_CHECK:
-      $this->show(self::ACTION_CONFIG, $this->checkConfig());
       break;
     case self::ACTION_ABOUT:
       $this->show(self::ACTION_ABOUT, $this->dlgAbout());
@@ -296,13 +295,21 @@ class offerBackend {
     return $this->getTemplate('subpage.lte', $data);
   } // showSubPage()
 
+  /**
+   * execute the manufaktur_config dialog
+   *
+   * @return string configuration dialog for kitOffer
+   */
   protected function dlgConfig() {
-    return __METHOD__;
+    $link = sprintf('%s&amp;%s',
+        $this->page_link,
+        http_build_query(array(
+            self::REQUEST_ACTION,
+            self::ACTION_CONFIG
+            )));
+    $dialog = new manufakturConfigDialog('kit_offer', $link);
+    return $dialog->action();
   } // dlgConfig()
-
-  protected function checkConfig() {
-    return __METHOD__;
-  } // checkConfig()
 
   /**
    * Information about kitIdea
@@ -366,7 +373,7 @@ class offerBackend {
           $article_array[$article[dbOfferArticles::FIELD_ID]][$key] = array(
               'name' => $key,
               'value' => $value,
-              'formatted' => number_format($value, 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)
+              'formatted' => sprintf(CFG_CURRENCY, number_format($value, 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR))
           );
           break;
         case dbOfferArticles::FIELD_IN_STOCK:
@@ -460,7 +467,7 @@ class offerBackend {
           $article_array[$key] = array(
             'name' => $key,
             'value' => $value,
-            'formatted' => number_format($value, 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR)
+            'formatted' => sprintf(CFG_CURRENCY, number_format($value, 2, CFG_DECIMAL_SEPARATOR, CFG_THOUSAND_SEPARATOR))
           );
           break;
         default:

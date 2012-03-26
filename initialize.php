@@ -40,17 +40,6 @@ if (!class_exists('manufaktur_I18n'))
 global $lang;
 if (!is_object($lang)) $lang = new manufaktur_I18n('kit_cronjob', LANGUAGE);
 
-// load language depending onfiguration
-if (!file_exists(LEPTON_PATH.'/modules/' . basename(dirname(__FILE__)) . '/languages/' . LANGUAGE . '.cfg.php')) {
-  require_once(LEPTON_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/DE.cfg.php');
-  // important: language flag is used by template selection
-  if (!defined('KIT_OFFER_LANGUAGE')) define('KIT_OFFER_LANGUAGE', 'DE');
-}
-else {
-  require_once(LEPTON_PATH .'/modules/'.basename(dirname(__FILE__)).'/languages/' .LANGUAGE .'.cfg.php');
-  if (!defined('KIT_OFFER_LANGUAGE')) define('KIT_OFFER_LANGUAGE', LANGUAGE);
-}
-
 if (!class_exists('Dwoo')) {
   require_once LEPTON_PATH.'/modules/dwoo/include.php';
 }
