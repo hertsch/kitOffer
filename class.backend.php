@@ -220,15 +220,15 @@ class offerBackend {
    * @return string result dialog or message
    */
   public function action() {
+    // to prevent cross site scripting is very important but look also to
+    // $_REQUESTs which are needed by other KIT addons. Addons which need
+    // a $_REQUEST with HTML should set a key in $_SESSION['KIT_HTML_REQUEST']
     $html_allowed = array(dbOfferArticles::FIELD_LONG_DESCRIPTION, dbOfferArticles::FIELD_SHORT_DESCRIPTION);
-    foreach ($_REQUEST as $key => $value) {
-      if (strpos($key, 'cfg_') == 0)
-        continue;
-      // ignore config values!
-      if (!in_array($key, $html_allowed)) {
-        $_REQUEST[$key] = $this->xssPrevent($value);
-      }
-    }
+    if (!isset($_SESSION['KIT_HTML_REQUEST'])) $_SESSION['KIT_HTML_REQUEST'] = array();
+    foreach ($html_allowed as $key)
+      if (!in_array($key, $_SESSION['KIT_HTML_REQUEST'])) $_SESSION['KIT_HTML_REQUEST'][] = $key;
+    foreach ($_REQUEST as $key => $value)
+      if (!in_array($key, $_SESSION['KIT_HTML_REQUEST'])) $_REQUEST[$key] = $this->xssPrevent($value);
 
     $action = isset($_REQUEST[self::REQUEST_ACTION]) ? $_REQUEST[self::REQUEST_ACTION] : self::ACTION_DEFAULT;
     if (($action == self::ACTION_DEFAULT) && isset($_REQUEST[I18n_Dialog::REQUEST_ACTION]))
@@ -303,11 +303,8 @@ class offerBackend {
   protected function dlgConfig() {
     $link = sprintf('%s&amp;%s',
         $this->page_link,
-        http_build_query(array(
-            self::REQUEST_ACTION,
-            self::ACTION_CONFIG
-            )));
-    $dialog = new manufakturConfigDialog('kit_offer', $link);
+        http_build_query(array(self::REQUEST_ACTION => self::ACTION_CONFIG)));
+    $dialog = new manufakturConfigDialog('kit_offer', 'kitOffer', $link);
     return $dialog->action();
   } // dlgConfig()
 

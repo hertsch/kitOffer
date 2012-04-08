@@ -49,5 +49,5 @@
       {$content}
     </div>
   {/if}
-  <div class="kit_copyright_footer"><strong>KeepInTouch & kitCronjob</strong> are released under <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GNU General Public License</a> (GPL) by <a href="http://phpmanufaktur.de" target="_blank">phpManufaktur</a></div>
+  <div class="kit_copyright_footer"><strong>KeepInTouch & kitOffer</strong> are released under <a href="http://www.gnu.org/licenses/gpl.html" target="_blank">GNU General Public License</a> (GPL) by <a href="http://phpmanufaktur.de" target="_blank">phpManufaktur</a></div>
 </div>
