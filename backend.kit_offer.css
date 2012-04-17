@@ -1,0 +1,312 @@
+/**
+ * kitOffer
+ * 
+ * @author Ralf Hertsch <ralf.hertsch@phpmanufaktur.de>
+ * @link http://phpmanufaktur.de
+ * @copyright 2012 - phpManufaktur by Ralf Hertsch
+ * @license http://www.gnu.org/licenses/gpl.html GNU Public License
+ * @version $Id: backend.css 4 2012-03-26 04:11:23Z phpmanufaktur $
+ * 
+ * FOR VERSION- AND RELEASE NOTES PLEASE LOOK AT INFO.TXT!
+ */
+
+/**
+General settings for all KIT modules
+**/
+#kit_backend {
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 10px;
+  font-weight: normal;
+  margin: 0;
+  padding: 0;
+  color: #363636;
+  background-color: transparent;
+  width: 900px;
+  height: auto;
+}
+#kit_backend h2 {
+  font-size: 14px;
+  color: #363636;
+  background-color: transparent;
+}
+#kit_content {
+  border: 1px solid #ddd;
+  border-top: none;
+  margin: 0;
+  padding: 1px 0 0 0;
+  width: 100%;
+  height: auto;
+  color: #363636;
+  background-color: #fff;
+}
+.kit_copyright_footer a,
+#kit_content a {
+  text-decoration: none;
+}
+.kit_copyright_footer a:link,
+.kit_copyright_footer a:visited,
+#kit_content a:link,
+#kit_content a:visited {
+  color: #5b768a;
+  background-color: transparent;
+  text-decoration: none;
+}
+.kit_copyright_footer a:hover,
+.kit_copyright_footer a:active,
+#kit_content a:hover,
+#kit_content a:active {
+  color: #992826;
+  background-color: transparent;
+  text-decoration: none;
+}
+#sub_page > .navigation,
+.navigation {
+  padding: 3px 0 3px 10px;
+  margin: 15px 0 0 0;
+  border-bottom: 1px solid #ddd;
+  list-style-type: none;
+  text-align: left;
+}
+#sub_page > .navigation li,
+.navigation li {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+#sub_page > .navigation li a,
+.navigation li a {
+  text-decoration: none;
+  padding: 3px 7px;
+  margin: 0 3px 0 0;
+  border: 1px solid #dddddd;
+  border-bottom: none;
+}
+#sub_page > .navigation li a:link,
+#sub_page > .navigation li a:visited,
+.navigation li a:link,
+.navigation li a:visited {
+  color: #fff;
+  background-color: #969696;
+}
+#sub_page > .navigation li a:hover,
+#sub_page > .navigation li a:active,
+.navigation li a:hover,
+.navigation li a:active {
+  background-color: #363636;
+  color: #fff;
+}
+#sub_page > .navigation li.selected a,
+.navigation li.selected a { 
+  position: relative;
+  top: 1px;
+  padding-top: 4px;
+  color: #363636;
+  background-color: #fff;
+  font-weight: bold;
+}
+.error_message,
+.message,
+.intro {
+  color: #fff;
+  background-color: #5b768a;
+  margin: 15px 120px 10px 0;
+  padding: 10px;
+  font-size: 10px;
+  min-height: 45px;
+}
+.error_message {
+  color: #fff;
+  background-color: #992826;
+}
+.message {
+  color: #363636;
+  background-color: #d6c48d;
+}
+.kit_copyright_footer {
+  margin: 5px 0 10px 0;
+  padding: 0; 
+  font-size: 9px;
+  color: #969696;
+  background-color: transparent;
+  text-align: center;
+}
+.kit_clear {
+  clear: both;
+  margin: 0 0 8px 0;
+}
+input {
+  width: 98%;
+  color: #363636;
+  background-color: transparent;
+}
+input[type=submit],
+input[type=button] {
+  width: 150px;
+}
+input[type=radio],
+input[type=checkbox] {
+  width: auto;
+}
+select {
+  width: 98%;
+  font-size:10px;
+}
+textarea {
+  width: 98%;
+  font-size: 10px;
+  color: #363636;
+  background-color: transparent;
+}
+kbd {
+  font-family: Courier, Monospace;
+  font-weight: bold;
+  font-style: normal;
+}
+
+#article_list,
+#article_edit,
+#kit_about,
+#kit_error {
+  background-image: none;
+  background-position: top right;
+  background-repeat: no-repeat;
+  background-color: transparent;
+  margin: 0;
+  padding: 5px 10px 20px 10px;
+}
+#kit_error {
+  background-image: url(images/background/error.png);
+}
+#article_edit {
+  background-image: url(images/background/article-edit.png);
+}
+#article_list {
+  background-image: url(images/background/article-list.png);
+}
+#article_list > a:link > .flop,
+#article_list > a:visited > .flop {
+  color: #363636;
+  background-color: #c9c9c9;
+}
+#article_list > a:link > .flip,
+#article_list > a:visited > .flip {
+  color: #fff;
+  background-color: #969696;
+}
+#article_list > a:hover > .flip,
+#article_list > a:active > .flip,
+#article_list > a:hover > .flop,
+#article_list > a:active > .flop {
+  color: #fff;
+  background-color: #363636;
+}
+
+.about_text {
+  float: left;
+  width: auto;
+  height: auto;
+  margin: 78px 0 0 20px;
+  padding: 0;
+}
+.about_logo {
+  float: left;
+  width: 450px;
+  height: auto;
+  padding: 5px 0 0 0;
+  margin: 0;
+}
+.about_release {
+  margin: 15px 0 15px 0;
+  padding: 0;
+  font-size: 9px;
+}
+.about_address {
+  margin: 0;
+  padding: 0;
+  font-size: 11px;
+}
+.about_contact {
+  margin: 10px 0 0 0;
+  padding: 0;
+  font-size: 10px;
+}
+.about_block {
+  float: left;
+}
+.about_manufaktur_logo {
+  float:left;
+  padding: 10px 0 0 50px;
+}
+.about_history {
+  margin: 25px 0 0 0;
+  padding: 0;
+}
+.about_history pre {
+  font-size: 12px;
+}
+.about_icons {
+  clear: left;
+  margin: 0;
+  padding: 55px 0 0 0;
+}
+#about_link {
+  float: left;
+  margin: 0 10px 0 0;
+  padding: 0;
+}
+/** Articles **/
+.art_id,
+.art_label {
+  float: left;
+  width: 120px;
+  font-weight: bold;
+}
+.art_value {
+  float: left;
+  width: 500px;
+  padding: 0 10px;
+} 
+.art_value.article_id {
+  width: 50px;
+}
+.art_value.article_number {
+  width: 150px !important;
+}
+.art_hint {
+  float: left;
+  width: 220px;
+  font-style: italic;
+}
+.art_clear {
+  clear: both;
+  margin: 0;
+  padding: 5px 0 0 0;
+}
+/** Article List **/
+.al_label {
+  float: left;
+  width: 100px;
+  font-weight: bold;
+  text-align: right;
+}
+.al_value {
+  float: left;
+  width: 650px;
+  padding: 0 5px;
+  margin: 0;
+}
+.al_value.article_status,
+.al_value.article_price,
+.al_value.article_in_stock,
+.al_value.article_id,
+.al_value.article_number {
+  width: 100px;
+}
+.al_value.article_timestamp {
+  width: 150px;
+}
+.al_clear {
+  clear: both;
+  margin: 0;
+  padding: 3px 0 0 0;
+}
