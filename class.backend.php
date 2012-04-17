@@ -57,31 +57,30 @@ class offerBackend {
   const ACTION_SUB_GROUPS = 'sge';
   const ACTION_SUB_GROUPS_CHECK = 'sgc';
 
-  private $page_link = '';
-  private $img_url = '';
-  private $template_path = '';
-  private $error = '';
-  private $message = '';
+  private static $page_link = '';
+  private static $img_url = '';
+  private static $error = '';
+  private static $message = '';
 
   protected $lang = NULL;
 
-  private $tab_navigation_array = array();
-  private $tab_articles_array = array();
+  private static $tab_navigation_array = array();
+  private static $tab_articles_array = array();
 
   public function __construct() {
     global $lang;
-    $this->page_link = ADMIN_URL . '/admintools/tool.php?tool=kit_offer';
-    $this->img_url = LEPTON_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
+    self::$page_link = ADMIN_URL . '/admintools/tool.php?tool=kit_offer';
+    self::$img_url = LEPTON_URL . '/modules/' . basename(dirname(__FILE__)) . '/images/';
     date_default_timezone_set(CFG_TIME_ZONE);
     $this->lang = $lang;
     // don't translate the Tab Strings here - this will be done in the template!
-    $this->tab_navigation_array = array(
+    self::$tab_navigation_array = array(
       self::ACTION_ARTICLES => $this->lang->I18n_Register('Articles'),
       self::ACTION_CONFIG => $this->lang->I18n_Register('Settings'),
       self::ACTION_LANGUAGE => $this->lang->I18n_Register('Languages'),
       self::ACTION_ABOUT => $this->lang->I18n_Register('About')
       );
-    $this->tab_articles_array = array(
+    self::$tab_articles_array = array(
       self::ACTION_SUB_ARTICLES => $this->lang->I18n_Register('List'),
       self::ACTION_SUB_ARTICLE_EDIT => $this->lang->I18n_Register('Edit'),
       //self::ACTION_SUB_GROUPS => $this->lang->I18n_Register('Groups')
@@ -94,7 +93,7 @@ class offerBackend {
    * @param $error STR
    */
   protected function setError($error) {
-    $this->error = $error;
+    self::$error = $error;
   } // setError()
 
   /**
@@ -103,7 +102,7 @@ class offerBackend {
    * @return STR $this->error
    */
   public function getError() {
-    return $this->error;
+    return self::$error;
   } // getError()
 
   /**
@@ -112,14 +111,14 @@ class offerBackend {
    * @return BOOL
    */
   public function isError() {
-    return (bool) !empty($this->error);
+    return (bool) !empty(self::$error);
   } // isError
 
   /**
    * Reset Error to empty String
    */
   protected function clearError() {
-    $this->error = '';
+    self::$error = '';
   }
 
   /**
@@ -128,7 +127,7 @@ class offerBackend {
    * @param $message STR
    */
   protected function setMessage($message) {
-    $this->message = $message;
+    self::$message = $message;
   } // setMessage()
 
   /**
@@ -137,7 +136,7 @@ class offerBackend {
    * @return STR $this->message
    */
   public function getMessage() {
-    return $this->message;
+    return self::$message;
   } // getMessage()
 
   /**
@@ -146,7 +145,7 @@ class offerBackend {
    * @return BOOL
    */
   public function isMessage() {
-    return (bool) !empty($this->message);
+    return (bool) !empty(self::$message);
   } // isMessage
 
   /**
@@ -231,8 +230,6 @@ class offerBackend {
       if (!in_array($key, $_SESSION['KIT_HTML_REQUEST'])) $_REQUEST[$key] = $this->xssPrevent($value);
 
     $action = isset($_REQUEST[self::REQUEST_ACTION]) ? $_REQUEST[self::REQUEST_ACTION] : self::ACTION_DEFAULT;
-    if (($action == self::ACTION_DEFAULT) && isset($_REQUEST[I18n_Dialog::REQUEST_ACTION]))
-      $action = self::ACTION_LANGUAGE;
 
     switch ($action) :
     case self::ACTION_ARTICLES:
@@ -240,6 +237,9 @@ class offerBackend {
       break;
     case self::ACTION_CONFIG:
       $this->show(self::ACTION_CONFIG, $this->dlgConfig());
+      break;
+    case self::ACTION_LANGUAGE:
+      $this->show(self::ACTION_LANGUAGE, $this->dlgLanguage());
       break;
     case self::ACTION_ABOUT:
       $this->show(self::ACTION_ABOUT, $this->dlgAbout());
@@ -260,16 +260,16 @@ class offerBackend {
    */
   protected function show($action, $content) {
     $navigation = array();
-    foreach ($this->tab_navigation_array as $key => $value) {
+    foreach (self::$tab_navigation_array as $key => $value) {
       $navigation[] = array(
           'active' => ($key == $action) ? 1 : 0,
-          'url' => sprintf('%s&%s', $this->page_link, http_build_query(array(
+          'url' => sprintf('%s&%s', self::$page_link, http_build_query(array(
               self::REQUEST_ACTION => $key))),
           'text' => $value);
     }
     $data = array(
         'LEPTON_URL' => LEPTON_URL,
-        'IMG_URL' => $this->img_url,
+        'IMG_URL' => self::$img_url,
         'navigation' => $navigation,
         'error' => ($this->isError()) ? 1 : 0,
         'content' => ($this->isError()) ? $this->getError() : $content);
@@ -278,10 +278,10 @@ class offerBackend {
 
   protected function showSubPage($action, $subaction, $content) {
     $navigation = array();
-    foreach ($this->tab_articles_array as $key => $value) {
+    foreach (self::$tab_articles_array as $key => $value) {
       $navigation[] = array(
           'active' => ($key == $subaction) ? 1 : 0,
-          'url' => sprintf('%s&%s', $this->page_link, http_build_query(array(
+          'url' => sprintf('%s&%s', self::$page_link, http_build_query(array(
               self::REQUEST_ACTION => $action,
               self::REQUEST_SUB_ACTION => $key))),
           'text' => $value
@@ -290,7 +290,7 @@ class offerBackend {
     $data = array(
         'navigation' => $navigation,
         'content' => $content,
-        'IMG_URL' => $this->img_url
+        'IMG_URL' => self::$img_url
         );
     return $this->getTemplate('subpage.lte', $data);
   } // showSubPage()
@@ -302,11 +302,25 @@ class offerBackend {
    */
   protected function dlgConfig() {
     $link = sprintf('%s&amp;%s',
-        $this->page_link,
+        self::$page_link,
         http_build_query(array(self::REQUEST_ACTION => self::ACTION_CONFIG)));
     $dialog = new manufakturConfigDialog('kit_offer', 'kitOffer', $link);
     return $dialog->action();
   } // dlgConfig()
+
+  /**
+   * Execute the manufakturI18nDialog
+   *
+   * @return string manufakturI18nDialog for kitOffer
+   */
+  protected function dlgLanguage() {
+    $link = sprintf('%s&amp;%s',
+        self::$page_link,
+        http_build_query(array(
+            self::REQUEST_ACTION => self::ACTION_LANGUAGE)));
+    $dialog = new manufakturI18nDialog('kit_offer', 'kitOffer', $link);
+    return $dialog->action();
+  } // dlgLanguage()
 
   /**
    * Information about kitIdea
@@ -316,7 +330,7 @@ class offerBackend {
   protected function dlgAbout() {
     $data = array(
         'version' => sprintf('%01.2f', $this->getVersion()),
-        'img_url' => $this->img_url,
+        'img_url' => self::$img_url,
         'release_notes' => file_get_contents(LEPTON_PATH . '/modules/' . basename(dirname(__FILE__)) . '/info.txt'),);
     return $this->getTemplate('about.lte', $data);
   } // dlgAbout()
@@ -389,7 +403,7 @@ class offerBackend {
       }
       // add the link for editing the article
       $article_array[$article[dbOfferArticles::FIELD_ID]]['edit'] = array(
-          'url' => sprintf('%s&%s', $this->page_link, http_build_query(array(
+          'url' => sprintf('%s&%s', self::$page_link, http_build_query(array(
               self::REQUEST_ACTION => self::ACTION_ARTICLES,
               self::REQUEST_SUB_ACTION => self::ACTION_SUB_ARTICLE_EDIT,
               dbOfferArticles::FIELD_ID => $article[dbOfferArticles::FIELD_ID]
